@@ -63,7 +63,8 @@ if ("IntersectionObserver" in window) {
 
 const membersDataElement = document.querySelector("#members-data");
 const teamCards = document.querySelectorAll(".team-card");
-const detailPanel = document.querySelector("#memberDetailPanel");
+const memberModal = document.querySelector("#memberModal");
+const memberModalBody = document.querySelector("#memberModalBody");
 const rosterCards = document.querySelectorAll(".roster-card");
 const homeSkillPanel = document.querySelector("#homeSkillPanel");
 
@@ -96,8 +97,16 @@ if (membersDataElement) {
   let selectedMemberId = null;
 
   const findMember = (memberId) => members.find((item) => String(item.id) === String(memberId));
-  const getMemberIndex = (memberId) => members.findIndex((item) => String(item.id) === String(memberId));
   const twoDigit = (value) => String(value).padStart(2, "0");
+  const summarizeText = (value) => {
+    const sentences = String(value || "")
+      .split(/(?<=[.!?])\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .join(" ");
+
+    return sentences || value;
+  };
 
   const setSelectedCards = (cards, memberId) => {
     cards.forEach((card) => {
@@ -108,153 +117,80 @@ if (membersDataElement) {
     });
   };
 
-  const renderMemberDetails = (member) => {
-    const currentIndex = getMemberIndex(member.id);
-    const memberCount = members.length;
-    const prevIndex = (currentIndex - 1 + memberCount) % memberCount;
-    const nextIndex = (currentIndex + 1) % memberCount;
-    const previousMember = members[prevIndex];
-    const nextMember = members[nextIndex];
-
-    detailPanel.innerHTML = `
-      <div class="detail-content">
-        <div class="detail-portrait-panel">
-          <span class="detail-index">${twoDigit(currentIndex + 1)} / ${twoDigit(memberCount)}</span>
-          <img class="detail-portrait" src="${escapeHtml(member.image)}" alt="${escapeHtml(member.name)} profile placeholder">
-          <div class="detail-portrait-caption">
-            <span>${escapeHtml(member.role)}</span>
-            <strong>${escapeHtml(member.name)}</strong>
-          </div>
-        </div>
-
-        <div class="detail-profile-copy">
-          <div class="detail-toolbar">
-            <div>
-              <span class="eyebrow">Selected profile</span>
-              <p>${escapeHtml(member.tagline)}</p>
-            </div>
-            <div class="member-nav-controls" aria-label="Browse team members">
-              <button class="member-nav-button" type="button" data-member-nav="${escapeHtml(previousMember.id)}" aria-label="Show previous member">
-                <span>Previous</span>
-                <strong>${escapeHtml(previousMember.name)}</strong>
-              </button>
-              <button class="member-nav-button" type="button" data-member-nav="${escapeHtml(nextMember.id)}" aria-label="Show next member">
-                <span>Next</span>
-                <strong>${escapeHtml(nextMember.name)}</strong>
-              </button>
-            </div>
-          </div>
-
-          <div class="detail-header">
-            <h2>${escapeHtml(member.name)}</h2>
-            <p>${escapeHtml(member.role)}</p>
-          </div>
-
-          <p class="detail-bio">${escapeHtml(member.bio)}</p>
-
-          <div class="detail-section">
-            <h3>Skills</h3>
-            ${member.skills
-              .map(
-                (skill) => `
-                  <div class="skill-meter">
-                    <div class="skill-meter-label">
-                      <span>${escapeHtml(skill.name)}</span>
-                      <strong>${escapeHtml(skill.level)}%</strong>
-                    </div>
-                    <div class="progress-track">
-                      <span class="progress-bar" style="--level: ${escapeHtml(skill.level)}%"></span>
-                    </div>
-                  </div>
-                `
-              )
-              .join("")}
-          </div>
-
-          <div class="detail-section">
-            <h3>Programming Languages</h3>
-            ${createBadgeList(member.programmingLanguages)}
-          </div>
-
-          <div class="detail-section">
-            <h3>Projects</h3>
-            ${createCleanList(member.projects)}
-          </div>
-
-          <div class="detail-section">
-            <h3>Achievements</h3>
-            ${createCleanList(member.achievements)}
-          </div>
-
-          <div class="detail-section">
-            <h3>Contact</h3>
-            ${createSocialLinks({ Email: `mailto:${member.email}`, ...member.socialLinks })}
-          </div>
-
-          <button class="btn btn-secondary reset-team" type="button">View All Members</button>
+  const renderMemberModal = (member) => {
+    memberModalBody.innerHTML = `
+      <div class="modal-portrait">
+        <span class="modal-member-number">${twoDigit(member.id)}</span>
+        <img src="${escapeHtml(member.image)}" alt="${escapeHtml(member.name)} profile">
+        <div class="modal-portrait-overlay">
+          <span>${escapeHtml(member.role)}</span>
+          <strong>${escapeHtml(member.name)}</strong>
         </div>
       </div>
+
+      <div class="modal-profile">
+        <p class="eyebrow">Elite profile ${twoDigit(member.id)}</p>
+        <h2 id="memberModalTitle">${escapeHtml(member.name)}</h2>
+        <p class="modal-role">${escapeHtml(member.role)}</p>
+        <p class="modal-summary">${escapeHtml(summarizeText(member.bio))}</p>
+
+        <div class="modal-info-grid">
+          <section>
+            <h3>Core Skills</h3>
+            ${createBadgeList(member.skills.slice(0, 4).map((skill) => skill.name))}
+          </section>
+
+          <section>
+            <h3>Main Tools / Languages</h3>
+            ${createBadgeList(member.programmingLanguages.slice(0, 5))}
+          </section>
+        </div>
+
+        <section class="modal-contact">
+          <h3>Contact</h3>
+          ${createSocialLinks({ Email: `mailto:${member.email}`, ...member.socialLinks })}
+        </section>
+      </div>
     `;
-
-    animateProgressBars(detailPanel);
-
-    detailPanel.querySelectorAll("[data-member-nav]").forEach((button) => {
-      button.addEventListener("click", () => selectMember(button.dataset.memberNav, false));
-    });
-
-    const resetButton = detailPanel.querySelector(".reset-team");
-    resetButton.addEventListener("click", resetTeamView);
   };
 
-  const selectMember = (memberId, shouldScroll = true) => {
+  const openMemberModal = (memberId) => {
     const member = findMember(memberId);
     if (!member) return;
 
     selectedMemberId = String(memberId);
     setSelectedCards(teamCards, memberId);
+    renderMemberModal(member);
 
-    renderMemberDetails(member);
-    detailPanel.classList.add("is-active");
-    detailPanel.setAttribute("aria-hidden", "false");
-
-    if (shouldScroll) {
-      window.setTimeout(() => {
-        detailPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 120);
-    }
+    memberModal.classList.add("is-open");
+    memberModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
   };
 
-  function resetTeamView() {
+  function closeMemberModal() {
     selectedMemberId = null;
     teamCards.forEach((card) => {
       card.classList.remove("is-selected", "is-faded");
       card.setAttribute("aria-pressed", "false");
     });
 
-    detailPanel.classList.remove("is-active");
-    detailPanel.setAttribute("aria-hidden", "true");
-    detailPanel.innerHTML = "";
+    memberModal.classList.remove("is-open");
+    memberModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
   }
 
-  if (teamCards.length && detailPanel) {
+  if (teamCards.length && memberModal && memberModalBody) {
     teamCards.forEach((card) => {
-      card.addEventListener("click", () => selectMember(card.dataset.memberId));
+      card.addEventListener("click", () => openMemberModal(card.dataset.memberId));
+    });
+
+    memberModal.querySelectorAll("[data-modal-close]").forEach((control) => {
+      control.addEventListener("click", closeMemberModal);
     });
 
     document.addEventListener("keydown", (event) => {
-      if (!selectedMemberId || !detailPanel.classList.contains("is-active")) return;
-
-      const selectedIndex = getMemberIndex(selectedMemberId);
-      if (selectedIndex === -1) return;
-
-      if (event.key === "ArrowLeft") {
-        const previousIndex = (selectedIndex - 1 + members.length) % members.length;
-        selectMember(members[previousIndex].id, false);
-      }
-
-      if (event.key === "ArrowRight") {
-        const nextIndex = (selectedIndex + 1) % members.length;
-        selectMember(members[nextIndex].id, false);
+      if (event.key === "Escape" && memberModal.classList.contains("is-open")) {
+        closeMemberModal();
       }
     });
   }

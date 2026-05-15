@@ -6,7 +6,7 @@
       <div class="team-title reveal">
         <p class="eyebrow">Elite profile lineup</p>
         <h1>OUR TEAM</h1>
-        <p>Choose a member to reveal their bio, skills, languages, projects, achievements, and contact links.</p>
+        <p>Choose a member to open a concise profile with their role, strengths, tools, and contact links.</p>
       </div>
 
       <div class="team-showcase" id="teamShowcase">
@@ -26,10 +26,17 @@
           <% }) %>
         </div>
 
-        <section class="member-detail-panel" id="memberDetailPanel" aria-live="polite" aria-hidden="true"></section>
       </div>
     </div>
   </section>
+
+  <div class="member-modal" id="memberModal" aria-hidden="true">
+    <div class="member-modal-backdrop" data-modal-close></div>
+    <article class="member-modal-card" role="dialog" aria-modal="true" aria-labelledby="memberModalTitle">
+      <button class="modal-close" type="button" data-modal-close aria-label="Close member profile">Close</button>
+      <div class="member-modal-body" id="memberModalBody"></div>
+    </article>
+  </div>
 </main>
 
 <script id="members-data" type="application/json"><%- JSON.stringify(members).replace(/</g, "\\u003c") %></script>
