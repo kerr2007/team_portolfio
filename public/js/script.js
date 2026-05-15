@@ -93,8 +93,11 @@ const createSocialLinks = (links) =>
 
 if (membersDataElement) {
   const members = JSON.parse(membersDataElement.textContent || "[]");
+  let selectedMemberId = null;
 
   const findMember = (memberId) => members.find((item) => String(item.id) === String(memberId));
+  const getMemberIndex = (memberId) => members.findIndex((item) => String(item.id) === String(memberId));
+  const twoDigit = (value) => String(value).padStart(2, "0");
 
   const setSelectedCards = (cards, memberId) => {
     cards.forEach((card) => {
@@ -106,83 +109,123 @@ if (membersDataElement) {
   };
 
   const renderMemberDetails = (member) => {
+    const currentIndex = getMemberIndex(member.id);
+    const memberCount = members.length;
+    const prevIndex = (currentIndex - 1 + memberCount) % memberCount;
+    const nextIndex = (currentIndex + 1) % memberCount;
+    const previousMember = members[prevIndex];
+    const nextMember = members[nextIndex];
+
     detailPanel.innerHTML = `
       <div class="detail-content">
-        <div class="detail-header">
-          <img src="${escapeHtml(member.image)}" alt="${escapeHtml(member.name)} profile placeholder">
-          <div>
-            <h2>${escapeHtml(member.name)}</h2>
-            <p>${escapeHtml(member.role)}</p>
+        <div class="detail-portrait-panel">
+          <span class="detail-index">${twoDigit(currentIndex + 1)} / ${twoDigit(memberCount)}</span>
+          <img class="detail-portrait" src="${escapeHtml(member.image)}" alt="${escapeHtml(member.name)} profile placeholder">
+          <div class="detail-portrait-caption">
+            <span>${escapeHtml(member.role)}</span>
+            <strong>${escapeHtml(member.name)}</strong>
           </div>
         </div>
 
-        <p class="detail-bio">${escapeHtml(member.bio)}</p>
+        <div class="detail-profile-copy">
+          <div class="detail-toolbar">
+            <div>
+              <span class="eyebrow">Selected profile</span>
+              <p>${escapeHtml(member.tagline)}</p>
+            </div>
+            <div class="member-nav-controls" aria-label="Browse team members">
+              <button class="member-nav-button" type="button" data-member-nav="${escapeHtml(previousMember.id)}" aria-label="Show previous member">
+                <span>Previous</span>
+                <strong>${escapeHtml(previousMember.name)}</strong>
+              </button>
+              <button class="member-nav-button" type="button" data-member-nav="${escapeHtml(nextMember.id)}" aria-label="Show next member">
+                <span>Next</span>
+                <strong>${escapeHtml(nextMember.name)}</strong>
+              </button>
+            </div>
+          </div>
 
-        <div class="detail-section">
-          <h3>Skills</h3>
-          ${member.skills
-            .map(
-              (skill) => `
-                <div class="skill-meter">
-                  <div class="skill-meter-label">
-                    <span>${escapeHtml(skill.name)}</span>
-                    <strong>${escapeHtml(skill.level)}%</strong>
+          <div class="detail-header">
+            <h2>${escapeHtml(member.name)}</h2>
+            <p>${escapeHtml(member.role)}</p>
+          </div>
+
+          <p class="detail-bio">${escapeHtml(member.bio)}</p>
+
+          <div class="detail-section">
+            <h3>Skills</h3>
+            ${member.skills
+              .map(
+                (skill) => `
+                  <div class="skill-meter">
+                    <div class="skill-meter-label">
+                      <span>${escapeHtml(skill.name)}</span>
+                      <strong>${escapeHtml(skill.level)}%</strong>
+                    </div>
+                    <div class="progress-track">
+                      <span class="progress-bar" style="--level: ${escapeHtml(skill.level)}%"></span>
+                    </div>
                   </div>
-                  <div class="progress-track">
-                    <span class="progress-bar" style="--level: ${escapeHtml(skill.level)}%"></span>
-                  </div>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
+                `
+              )
+              .join("")}
+          </div>
 
-        <div class="detail-section">
-          <h3>Programming Languages</h3>
-          ${createBadgeList(member.programmingLanguages)}
-        </div>
+          <div class="detail-section">
+            <h3>Programming Languages</h3>
+            ${createBadgeList(member.programmingLanguages)}
+          </div>
 
-        <div class="detail-section">
-          <h3>Projects</h3>
-          ${createCleanList(member.projects)}
-        </div>
+          <div class="detail-section">
+            <h3>Projects</h3>
+            ${createCleanList(member.projects)}
+          </div>
 
-        <div class="detail-section">
-          <h3>Achievements</h3>
-          ${createCleanList(member.achievements)}
-        </div>
+          <div class="detail-section">
+            <h3>Achievements</h3>
+            ${createCleanList(member.achievements)}
+          </div>
 
-        <div class="detail-section">
-          <h3>Contact</h3>
-          ${createSocialLinks({ Email: `mailto:${member.email}`, ...member.socialLinks })}
-        </div>
+          <div class="detail-section">
+            <h3>Contact</h3>
+            ${createSocialLinks({ Email: `mailto:${member.email}`, ...member.socialLinks })}
+          </div>
 
-        <button class="btn btn-secondary reset-team" type="button">View All Members</button>
+          <button class="btn btn-secondary reset-team" type="button">View All Members</button>
+        </div>
       </div>
     `;
 
     animateProgressBars(detailPanel);
 
+    detailPanel.querySelectorAll("[data-member-nav]").forEach((button) => {
+      button.addEventListener("click", () => selectMember(button.dataset.memberNav, false));
+    });
+
     const resetButton = detailPanel.querySelector(".reset-team");
     resetButton.addEventListener("click", resetTeamView);
   };
 
-  const selectMember = (memberId) => {
+  const selectMember = (memberId, shouldScroll = true) => {
     const member = findMember(memberId);
     if (!member) return;
 
+    selectedMemberId = String(memberId);
     setSelectedCards(teamCards, memberId);
 
     renderMemberDetails(member);
     detailPanel.classList.add("is-active");
     detailPanel.setAttribute("aria-hidden", "false");
 
-    window.setTimeout(() => {
-      detailPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 120);
+    if (shouldScroll) {
+      window.setTimeout(() => {
+        detailPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 120);
+    }
   };
 
   function resetTeamView() {
+    selectedMemberId = null;
     teamCards.forEach((card) => {
       card.classList.remove("is-selected", "is-faded");
       card.setAttribute("aria-pressed", "false");
@@ -196,6 +239,23 @@ if (membersDataElement) {
   if (teamCards.length && detailPanel) {
     teamCards.forEach((card) => {
       card.addEventListener("click", () => selectMember(card.dataset.memberId));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!selectedMemberId || !detailPanel.classList.contains("is-active")) return;
+
+      const selectedIndex = getMemberIndex(selectedMemberId);
+      if (selectedIndex === -1) return;
+
+      if (event.key === "ArrowLeft") {
+        const previousIndex = (selectedIndex - 1 + members.length) % members.length;
+        selectMember(members[previousIndex].id, false);
+      }
+
+      if (event.key === "ArrowRight") {
+        const nextIndex = (selectedIndex + 1) % members.length;
+        selectMember(members[nextIndex].id, false);
+      }
     });
   }
 
