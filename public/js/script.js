@@ -160,11 +160,19 @@ if (membersDataElement) {
 
     selectedMemberId = String(memberId);
     setSelectedCards(teamCards, memberId);
+
+    const selectedCard = Array.from(teamCards).find((card) => card.dataset.memberId === String(memberId));
+    selectedCard?.classList.add("is-launching");
+    window.setTimeout(() => selectedCard?.classList.remove("is-launching"), 360);
+
     renderMemberModal(member);
 
-    memberModal.classList.add("is-open");
     memberModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
+
+    window.requestAnimationFrame(() => {
+      memberModal.classList.add("is-open");
+    });
   };
 
   function closeMemberModal() {
@@ -177,6 +185,12 @@ if (membersDataElement) {
     memberModal.classList.remove("is-open");
     memberModal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");
+
+    window.setTimeout(() => {
+      if (!memberModal.classList.contains("is-open")) {
+        memberModalBody.innerHTML = "";
+      }
+    }, 260);
   }
 
   if (teamCards.length && memberModal && memberModalBody) {
