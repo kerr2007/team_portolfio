@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A premium orange and black 5-member team portfolio built with Node.js, Express, and EJS.">
+  <title><%= pageTitle %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="<%= activePage || '' %>">
+  <header class="site-header">
+    <nav class="navbar container" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Dev Collective home">
+        <span class="brand-mark">DC</span>
+        <span class="brand-text">Dev Collective</span>
+      </a>
+
+      <button class="mobile-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-panel">
+        <a class="nav-link <%= activePage === 'home' ? 'active' : '' %>" href="/">Home</a>
+        <a class="nav-link <%= activePage === 'team' ? 'active' : '' %>" href="/team">Team</a>
+        <a class="nav-link <%= activePage === 'projects' ? 'active' : '' %>" href="/projects">Projects</a>
+        <a class="nav-link <%= activePage === 'skills' ? 'active' : '' %>" href="/skills">Skills</a>
+        <a class="nav-link <%= activePage === 'about' ? 'active' : '' %>" href="/about">About</a>
+        <a class="nav-link <%= activePage === 'contact' ? 'active' : '' %>" href="/contact">Contact</a>
+      </div>
+    </nav>
+  </header>

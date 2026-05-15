@@ -1,0 +1,65 @@
+<%- include("partials/header", { pageTitle, activePage }) %>
+
+<main>
+  <section class="hero page-band">
+    <div class="container hero-grid">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">5-member developer squad</p>
+        <h1>Dev Collective</h1>
+        <p class="hero-kicker">Orange-black portfolio system for a sharp, modern team showcase.</p>
+        <p class="hero-description">
+          We blend frontend engineering, backend development, UI/UX design, project management, and full-stack delivery into one focused portfolio experience.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/team">Meet Our Team</a>
+          <a class="btn btn-secondary" href="/projects">View Projects</a>
+        </div>
+      </div>
+
+      <div class="home-team-preview reveal" id="homeRoster" aria-label="Interactive team preview">
+        <div class="preview-title">
+          <span>Roster</span>
+          <strong>05</strong>
+        </div>
+        <% members.forEach((member, index) => { %>
+          <button class="preview-member roster-card" type="button" data-member-id="<%= member.id %>" style="--delay: <%= index * 70 %>ms" aria-label="Show <%= member.name %> skills">
+            <span class="preview-number">0<%= member.id %></span>
+            <img src="<%= member.image %>" alt="<%= member.name %> profile placeholder">
+            <div>
+              <strong><%= member.name %></strong>
+              <small><%= member.role %></small>
+            </div>
+          </button>
+        <% }) %>
+
+        <div class="home-skill-panel" id="homeSkillPanel" aria-live="polite">
+          <span>Click a member</span>
+          <strong>Skills will appear here</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section intro-section">
+    <div class="container split-layout">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Team intro</p>
+        <h2>A compact product crew with presentation-ready execution.</h2>
+      </div>
+      <div class="intro-copy reveal">
+        <p>
+          The portfolio is designed around a strong team identity: bold member cards, focused role storytelling, and clear paths into projects, skills, background, and contact.
+        </p>
+        <div class="stat-row">
+          <span><strong>5</strong> Members</span>
+          <span><strong>6</strong> Routes</span>
+          <span><strong>1</strong> Shared Brand</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script id="members-data" type="application/json"><%- JSON.stringify(members).replace(/</g, "\\u003c") %></script>
+
+<%- include("partials/footer") %>

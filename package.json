@@ -1,0 +1,21 @@
+{
+  "name": "portfolio-team",
+  "version": "1.0.0",
+  "description": "A polished 5-member team portfolio website built with Node.js, Express, and EJS.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "portfolio",
+    "team",
+    "express",
+    "ejs"
+  ],
+  "author": "5-Member Team",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}

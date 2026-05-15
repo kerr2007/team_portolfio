@@ -1,0 +1,90 @@
+<%- include("partials/header", { pageTitle, activePage }) %>
+
+<main>
+  <% if (!member) { %>
+    <section class="section not-found-section">
+      <div class="container not-found-card reveal">
+        <p class="eyebrow">404</p>
+        <h1>Member profile not found.</h1>
+        <p>The profile you requested does not exist. Return to the team page to choose another member.</p>
+        <a class="btn btn-primary" href="/team">Back to Team</a>
+      </div>
+    </section>
+  <% } else { %>
+    <section class="member-page-hero page-band">
+      <div class="container member-page-grid">
+        <div class="member-page-portrait reveal">
+          <img src="<%= member.image %>" alt="<%= member.name %> profile placeholder">
+        </div>
+        <div class="member-page-copy reveal">
+          <a class="back-link" href="/team">Back to Team</a>
+          <p class="eyebrow"><%= member.role %></p>
+          <h1><%= member.name %></h1>
+          <p class="hero-kicker"><%= member.tagline %></p>
+          <p><%= member.bio %></p>
+          <div class="member-contact-strip">
+            <a href="mailto:<%= member.email %>"><%= member.email %></a>
+            <span><%= member.phone %></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section content-section">
+      <div class="container profile-grid">
+        <article class="profile-panel reveal">
+          <h2>Skills</h2>
+          <% member.skills.forEach((skill) => { %>
+            <div class="skill-meter">
+              <div class="skill-meter-label">
+                <span><%= skill.name %></span>
+                <strong><%= skill.level %>%</strong>
+              </div>
+              <div class="progress-track">
+                <span class="progress-bar" style="--level: <%= skill.level %>%"></span>
+              </div>
+            </div>
+          <% }) %>
+        </article>
+
+        <article class="profile-panel reveal">
+          <h2>Programming Languages</h2>
+          <div class="badge-list large">
+            <% member.programmingLanguages.forEach((language) => { %>
+              <span><%= language %></span>
+            <% }) %>
+          </div>
+        </article>
+
+        <article class="profile-panel reveal">
+          <h2>Projects</h2>
+          <ul class="clean-list">
+            <% member.projects.forEach((project) => { %>
+              <li><%= project %></li>
+            <% }) %>
+          </ul>
+        </article>
+
+        <article class="profile-panel reveal">
+          <h2>Achievements</h2>
+          <ul class="clean-list">
+            <% member.achievements.forEach((achievement) => { %>
+              <li><%= achievement %></li>
+            <% }) %>
+          </ul>
+        </article>
+
+        <article class="profile-panel reveal wide-panel">
+          <h2>Social Links</h2>
+          <div class="social-grid">
+            <% Object.entries(member.socialLinks).forEach(([label, url]) => { %>
+              <a href="<%= url %>" target="_blank" rel="noreferrer"><%= label %></a>
+            <% }) %>
+          </div>
+        </article>
+      </div>
+    </section>
+  <% } %>
+</main>
+
+<%- include("partials/footer") %>

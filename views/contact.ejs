@@ -1,0 +1,41 @@
+<%- include("partials/header", { pageTitle, activePage }) %>
+
+<main>
+  <section class="page-hero section">
+    <div class="container narrow-heading reveal">
+      <p class="eyebrow">Start a conversation</p>
+      <h1>Contact</h1>
+      <p>Reach the team for demos, feedback, collaboration, or project presentation requests.</p>
+    </div>
+  </section>
+
+  <section class="section content-section">
+    <div class="container contact-layout">
+      <div class="contact-card reveal">
+        <h2>Team channels</h2>
+        <p>Use the form or connect through our shared social links.</p>
+        <div class="contact-list">
+          <a href="mailto:team@example.com">team@example.com</a>
+          <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </div>
+
+      <form class="contact-form reveal" id="contactForm" action="/contact" method="POST" novalidate>
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" placeholder="Your name" required>
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required>
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" placeholder="Tell us about the project or presentation..." required minlength="10"></textarea>
+
+        <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+        <button class="btn btn-primary" type="submit">Send Message</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

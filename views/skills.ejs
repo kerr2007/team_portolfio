@@ -1,0 +1,30 @@
+<%- include("partials/header", { pageTitle, activePage }) %>
+
+<main>
+  <section class="page-hero section">
+    <div class="container narrow-heading reveal">
+      <p class="eyebrow">Team capability map</p>
+      <h1>Skills</h1>
+      <p>Overall team strengths grouped by frontend, backend, UI/UX design, database, and project management.</p>
+    </div>
+  </section>
+
+  <section class="section content-section">
+    <div class="container skill-category-grid">
+      <% skillCategories.forEach((category, index) => { %>
+        <article class="skill-category-card reveal">
+          <span class="card-number">0<%= index + 1 %></span>
+          <h2><%= category.title %></h2>
+          <p><%= category.description %></p>
+          <div class="badge-list">
+            <% category.skills.forEach((skill) => { %>
+              <span><%= skill %></span>
+            <% }) %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
